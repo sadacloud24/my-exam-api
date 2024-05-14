@@ -7,65 +7,77 @@ using System.Net;
 
 namespace MyExamApi.Controllers
 {
+    /// <summary>
+    /// ExamQuestionsController
+    /// </summary>
+    /// <param name="middleLayer"></param>
+    /// <param name="logger"></param>
     [ApiController]
     [Route("[controller]")]
-    public class ExamQuestionsController : ControllerBase
+    public class ExamQuestionsController(IMiddleLayer middleLayer, ILogger<ExamQuestionsController> logger) : ControllerBase
     {
-        private IMiddleLayer MiddleLayer { get; set; }
-        private readonly ILogger<ExamQuestionsController> _logger;
-        public ExamQuestionsController(IMiddleLayer middleLayer, ILogger<ExamQuestionsController> logger)
-        {
-            MiddleLayer = middleLayer;
-            _logger = logger;
-        }
 
+        /// <summary>
+        /// Add Questions
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<HttpResponseMessage> AddQuestionAsync(QuestionRequest request)
         {
             try
             {
-                await MiddleLayer.AddQuestionAsync(request);
+                await middleLayer.AddQuestionAsync(request);
             }
             catch (Exception ex)
             {
-                this._logger.LogError(ex.Message);
+                logger.LogError(ex.Message);
                 return new HttpResponseMessage(HttpStatusCode.ExpectationFailed);
             }
 
             return new HttpResponseMessage(HttpStatusCode.OK);
         }
 
-        [HttpPost]
+        /// <summary>
+        /// Update Question
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPut]
         public async Task<HttpResponseMessage> UpdateQuestionAsync(QuestionRequest request)
         {
             try
             {
-                await MiddleLayer.UpdateQuestionAsync(request);
+                await middleLayer.UpdateQuestionAsync(request);
             }
             catch (Exception ex)
             {
-                this._logger.LogError(ex.Message);
+                logger.LogError(ex.Message);
                 return new HttpResponseMessage(HttpStatusCode.ExpectationFailed);
             }
 
             return new HttpResponseMessage(HttpStatusCode.OK);
         }
 
-        [HttpPost]
+        /// <summary>
+        /// Get Question
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        [HttpGet]
         public async Task<IEnumerable<object>> GetQuestionAsync(string type)
         {
             var response = new List<object>();
             try
             {
-                response = (await MiddleLayer.GetQuestionsAsync(type)).ToList();
+                response = (await middleLayer.GetQuestionsAsync(type)).ToList();
             }
             catch (Exception ex)
             {
-                this._logger.LogError(ex.Message);
+                logger.LogError(ex.Message);
             }
 
             return response;
         }
-
     }
 }
